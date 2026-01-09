@@ -15,6 +15,7 @@ media/
 
 # Env
 .env
+.env.*
 
 # IDE
 .idea/

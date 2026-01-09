@@ -5,8 +5,21 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+try:
+    from dotenv import load_dotenv
+except ImportError:  # pragma: no cover
+    load_dotenv = None
+
+if load_dotenv:
+    load_dotenv(BASE_DIR / ".env")
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-insecure-change-me")
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "DJANGO_SECRET_KEY is not set. Create a local .env file (never commit it) or export DJANGO_SECRET_KEY."
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
