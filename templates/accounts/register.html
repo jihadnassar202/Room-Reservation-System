@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load form_tags %}
+
+{% block title %}Create account · Room Reservation{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-9 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h4 mb-1">Create your account</h1>
+          <p class="text-body-secondary mb-4">Register to reserve rooms and view your reservation history.</p>
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="mb-3">
+                {% for err in form.non_field_errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="row">
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+                {% if form.username.errors %}
+                  {{ form.username|add_class:"form-control is-invalid" }}
+                  {% for err in form.username.errors %}
+                    <div class="invalid-feedback">{{ err }}</div>
+                  {% endfor %}
+                {% else %}
+                  {{ form.username|add_class:"form-control" }}
+                {% endif %}
+              </div>
+              <div class="col-12 col-md-6 mb-3">
+                <label class="form-label" for="{{ form.email.id_for_label }}">Email (optional)</label>
+                {% if form.email.errors %}
+                  {{ form.email|add_class:"form-control is-invalid" }}
+                  {% for err in form.email.errors %}
+                    <div class="invalid-feedback">{{ err }}</div>
+                  {% endfor %}
+                {% else %}
+                  {{ form.email|add_class:"form-control" }}
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="{{ form.password1.id_for_label }}">Password</label>
+              {% if form.password1.errors %}
+                {{ form.password1|add_class:"form-control is-invalid" }}
+                {% for err in form.password1.errors %}
+                  <div class="invalid-feedback">{{ err }}</div>
+                {% endfor %}
+              {% else %}
+                {{ form.password1|add_class:"form-control" }}
+              {% endif %}
+              {% if form.password1.help_text %}
+                <div class="form-text text-body-secondary">{{ form.password1.help_text|safe }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="{{ form.password2.id_for_label }}">Confirm password</label>
+              {% if form.password2.errors %}
+                {{ form.password2|add_class:"form-control is-invalid" }}
+                {% for err in form.password2.errors %}
+                  <div class="invalid-feedback">{{ err }}</div>
+                {% endfor %}
+              {% else %}
+                {{ form.password2|add_class:"form-control" }}
+              {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Create account</button>
+
+            <div class="my-3 text-center text-body-secondary small">or</div>
+
+            <button type="button" class="btn btn-outline-secondary w-100" disabled>
+              Continue with Google
+            </button>
+            <div class="form-text text-body-secondary text-center mt-1">
+              (Google Sign-In will be enabled later.)
+            </div>
+
+            <div class="mt-4 text-center small">
+              Already have an account?
+              <a href="{% url 'accounts:login' %}">Login</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load form_tags %}
+
+{% block title %}Login · Room Reservation{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h4 mb-1">Welcome back</h1>
+          <p class="text-body-secondary mb-4">Login to reserve rooms and manage your reservations.</p>
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="mb-3">
+                {% for err in form.non_field_errors %}
+                  <div class="text-danger small">{{ err }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="mb-3">
+              <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+              {% if form.username.errors %}
+                {{ form.username|add_class:"form-control is-invalid" }}
+                {% for err in form.username.errors %}
+                  <div class="invalid-feedback">{{ err }}</div>
+                {% endfor %}
+              {% else %}
+                {{ form.username|add_class:"form-control" }}
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+              {% if form.password.errors %}
+                {{ form.password|add_class:"form-control is-invalid" }}
+                {% for err in form.password.errors %}
+                  <div class="invalid-feedback">{{ err }}</div>
+                {% endfor %}
+              {% else %}
+                {{ form.password|add_class:"form-control" }}
+              {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+
+            <div class="my-3 text-center text-body-secondary small">or</div>
+
+            <button type="button" class="btn btn-outline-secondary w-100" disabled>
+              Continue with Google
+            </button>
+            <div class="form-text text-body-secondary text-center mt-1">
+              (Google Sign-In will be enabled later.)
+            </div>
+
+            <div class="mt-4 text-center small">
+              Don’t have an account?
+              <a href="{% url 'accounts:register' %}">Create one</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+
