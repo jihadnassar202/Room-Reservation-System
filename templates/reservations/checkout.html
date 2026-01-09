@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout · Room Reservation{% endblock %}
+
+{% block content %}
+  <div class="row g-3">
+    <div class="col-12">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+          <h1 class="h4 mb-1">Checkout</h1>
+          <div class="text-body-secondary">
+            Select a date, see availability, and reserve a slot (coming next).
+          </div>
+        </div>
+        <a class="btn btn-outline-primary" href="{% url 'reservations:my_reservations' %}">My Reservations</a>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-start gap-3">
+            <div class="flex-grow-1">
+              <div class="fw-semibold mb-1">Day 1 placeholder</div>
+              <div class="text-body-secondary">
+                On Day 2 we’ll implement the availability matrix (rooms × time slots), dynamic filtering, and AJAX reservation
+                creation with proper debouncing and loading/disabled states.
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4" />
+
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <label class="form-label">Date</label>
+              <input type="date" class="form-control" disabled />
+            </div>
+            <div class="col-12 col-md-8">
+              <label class="form-label">Room type filter</label>
+              <input type="text" class="form-control" placeholder="Search room types…" disabled />
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <div class="text-body-secondary small">
+              Tip: all user feedback in this project uses toasts/modals — no alerts.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+

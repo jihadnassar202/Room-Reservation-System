@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}My Reservations · Room Reservation{% endblock %}
+
+{% block content %}
+  <div class="row g-3">
+    <div class="col-12">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+          <h1 class="h4 mb-1">My Reservations</h1>
+          <div class="text-body-secondary">
+            Upcoming reservations can be edited/cancelled later. Past reservations are view-only.
+          </div>
+        </div>
+        <a class="btn btn-primary" href="{% url 'reservations:checkout' %}">Go to Checkout</a>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+            <h2 class="h6 mb-0">Upcoming</h2>
+            <span class="badge text-bg-primary">{{ upcoming|length }}</span>
+          </div>
+
+          {% if upcoming %}
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Room</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for r in upcoming %}
+                    <tr>
+                      <td class="fw-semibold">{{ r.room_type.name }}</td>
+                      <td>{{ r.date }}</td>
+                      <td>{{ r.get_slot_display }}</td>
+                      <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled>Edit</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" disabled>Cancel</button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-body-secondary">No upcoming reservations yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+            <h2 class="h6 mb-0">Past</h2>
+            <span class="badge text-bg-secondary">{{ past|length }}</span>
+          </div>
+
+          {% if past %}
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Room</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th class="text-end">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for r in past %}
+                    <tr>
+                      <td class="fw-semibold">{{ r.room_type.name }}</td>
+                      <td>{{ r.date }}</td>
+                      <td>{{ r.get_slot_display }}</td>
+                      <td class="text-end">
+                        <span class="badge text-bg-success">Completed</span>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-body-secondary">No past reservations.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+

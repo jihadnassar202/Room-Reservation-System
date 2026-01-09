@@ -14,8 +14,8 @@
 
           <div class="d-flex flex-wrap gap-2">
             {% if user.is_authenticated %}
-              <a class="btn btn-primary" href="/checkout/">Go to Checkout</a>
-              <a class="btn btn-outline-primary" href="/my-reservations/">My Reservations</a>
+              <a class="btn btn-primary" href="{% url 'reservations:checkout' %}">Go to Checkout</a>
+              <a class="btn btn-outline-primary" href="{% url 'reservations:my_reservations' %}">My Reservations</a>
             {% else %}
               <a class="btn btn-primary" href="{% url 'accounts:login' %}">Login</a>
               <a class="btn btn-outline-primary" href="{% url 'accounts:register' %}">Create account</a>
