@@ -1,0 +1,15 @@
+/* Placeholder theme tokens (final branding/palette will be applied later). */
+:root {
+  --brand-primary: #0d6efd; /* bootstrap primary placeholder */
+}
+
+.app-page {
+  min-height: 100vh;
+}
+
+/* Ensure toasts render above most UI (including modals). */
+#app-toast-container {
+  z-index: 1100;
+}
+
+
