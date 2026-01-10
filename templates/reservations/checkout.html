@@ -37,16 +37,47 @@
           </div>
 
           <div id="checkoutHelp" class="form-text text-body-secondary mt-2">
-            Availability updates automatically. Final “reserve from checkout” and slot matrix will be completed in the next feature.
+            Availability updates automatically when you change the date.
           </div>
 
-          <div class="mt-4" id="availabilityPreviewWrap">
+          <div class="mt-4" id="availabilityMatrixWrap">
             <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
-              <div class="fw-semibold">Availability preview</div>
+              <div class="fw-semibold">Availability</div>
               <div class="small text-body-secondary" id="availabilityStatus">Idle</div>
             </div>
-            <div class="border rounded-3 p-3 bg-body-tertiary" id="availabilityPreview">
-              Select a date to load availability…
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+              <div class="d-flex flex-wrap gap-2 align-items-center small">
+                <span class="badge text-bg-success">Available</span>
+                <span class="badge text-bg-danger">Reserved</span>
+                <span class="badge text-bg-primary">Selected</span>
+              </div>
+              <div class="small text-body-secondary" id="selectedSummary">No slot selected</div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-bordered align-middle mb-0" id="availabilityTable">
+                <thead id="availabilityHead">
+                  <tr>
+                    <th class="text-body-secondary small">Room</th>
+                    <th class="text-body-secondary small text-center">Time slots</th>
+                  </tr>
+                </thead>
+                <tbody id="availabilityBody">
+                  <tr>
+                    <td colspan="99" class="text-body-secondary">Loading…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
+              <button type="button" class="btn btn-primary" id="reserveSelectedBtn" disabled>
+                Reserve selected slot
+              </button>
+              <div class="form-text text-body-secondary">
+                Reservation from checkout will be enabled in the next feature.
+              </div>
             </div>
           </div>
 

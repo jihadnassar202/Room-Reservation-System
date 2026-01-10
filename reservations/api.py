@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import date as date_type
 
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
@@ -14,13 +13,15 @@ def _parse_date(value: str) -> date_type:
 
 
 @require_GET
-@login_required
 def availability_api(request):
     """
     GET /api/availability/?date=YYYY-MM-DD[&room_type_id=123]
 
     Returns reserved slot values per room type for the provided date.
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentication required."}, status=401)
+
     date_str = request.GET.get("date", "").strip()
     if not date_str:
         return JsonResponse({"error": "Missing required query param: date"}, status=400)
