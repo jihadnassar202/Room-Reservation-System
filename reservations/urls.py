@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .api import availability_api, cancel_reservation_api, create_reservation_api
-from .views import checkout_view, my_reservations_view
+from .views import checkout_view, my_reservations_view, reservation_create_view
 
 
 app_name = "reservations"
@@ -16,6 +16,7 @@ urlpatterns = [
     ),
     path("checkout/", checkout_view, name="checkout"),
     path("my-reservations/", my_reservations_view, name="my_reservations"),
+    path("reservations/new/", reservation_create_view, name="reservation_create"),
 ]
 
 

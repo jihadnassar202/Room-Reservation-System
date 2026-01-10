@@ -12,7 +12,10 @@
             Select a date to see availability (live updates).
           </div>
         </div>
-        <a class="btn btn-outline-primary" href="{% url 'reservations:my_reservations' %}">My Reservations</a>
+        <div class="d-flex flex-wrap gap-2">
+          <a class="btn btn-outline-primary" href="{% url 'reservations:reservation_create' %}">New Reservation</a>
+          <a class="btn btn-outline-primary" href="{% url 'reservations:my_reservations' %}">My Reservations</a>
+        </div>
       </div>
     </div>
 
