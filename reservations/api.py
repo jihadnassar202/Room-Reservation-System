@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import json
 from datetime import date as date_type
 
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_POST
 
 from .models import Reservation, RoomType, TimeSlot
+from .services import PastReservationError, ReservationInput, SlotUnavailableError, create_reservation
 
 
 def _parse_date(value: str) -> date_type:
@@ -64,6 +68,63 @@ def availability_api(request):
                 for rt in room_types
             ],
         }
+    )
+
+
+@require_POST
+def create_reservation_api(request):
+    """
+    POST /api/reservations/
+    Payload (JSON):
+      - room_type_id: int
+      - date: YYYY-MM-DD
+      - slot: int (TimeSlot value)
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentication required."}, status=401)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8") or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON payload."}, status=400)
+
+    room_type_id = payload.get("room_type_id")
+    date_str = (payload.get("date") or "").strip()
+    slot = payload.get("slot")
+
+    if not isinstance(room_type_id, int):
+        return JsonResponse({"error": "room_type_id must be an integer."}, status=400)
+    if not date_str:
+        return JsonResponse({"error": "date is required."}, status=400)
+    if not isinstance(slot, int):
+        return JsonResponse({"error": "slot must be an integer."}, status=400)
+
+    try:
+        target_date = _parse_date(date_str)
+    except ValueError:
+        return JsonResponse({"error": "Invalid date. Expected YYYY-MM-DD."}, status=400)
+
+    try:
+        reservation = create_reservation(
+            user=request.user,
+            data=ReservationInput(room_type_id=room_type_id, date=target_date, slot=slot),
+        )
+    except ValidationError as exc:
+        return JsonResponse({"error": "Validation error.", "details": exc.message_dict}, status=400)
+    except PastReservationError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+    except SlotUnavailableError as exc:
+        return JsonResponse({"error": str(exc)}, status=409)
+    except RoomType.DoesNotExist:
+        return JsonResponse({"error": "Room type not found."}, status=404)
+
+    return JsonResponse(
+        {
+            "success": True,
+            "reservation_id": reservation.id,
+            "message": "Reservation created successfully.",
+        },
+        status=201,
     )
 
 

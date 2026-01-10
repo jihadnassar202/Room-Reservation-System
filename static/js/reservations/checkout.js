@@ -124,6 +124,11 @@
       selectedSummaryEl.textContent = `Selected: ${room.name} · ${slot.label}`;
     };
 
+    const setReserveEnabled = (enabled) => {
+      if (!reserveBtn) return;
+      reserveBtn.disabled = !enabled;
+    };
+
     const load = async () => {
       const date = dateInput.value;
       if (!date) return;
@@ -147,6 +152,7 @@
         selection = null;
         renderMatrix(headEl, bodyEl, payload, filterInput?.value || "", selection);
         updateSelectedSummary();
+        setReserveEnabled(false);
         setStatus(statusEl, `Updated for ${payload.date}`);
       } catch (e) {
         if (e?.name === "AbortError") return;
@@ -187,7 +193,59 @@
       renderMatrix(headEl, bodyEl, lastPayload, filterInput?.value || "", selection);
       updateSelectedSummary();
 
-      if (reserveBtn) reserveBtn.disabled = true;
+      setReserveEnabled(true);
+    });
+
+    reserveBtn?.addEventListener("click", async () => {
+      if (!selection || !lastPayload) return;
+
+      const date = dateInput.value;
+      const room = (lastPayload.room_types || []).find((rt) => rt.id === selection.roomTypeId);
+      const slot = (lastPayload.time_slots || []).find((s) => Number(s.value) === selection.slot);
+      if (!date || !room || !slot) return;
+
+      const ok = await window.App.confirm({
+        title: "Confirm reservation",
+        body: `Reserve ${room.name} on ${date} at ${slot.label}?`,
+        okText: "Reserve",
+        okVariant: "primary",
+      });
+      if (!ok) return;
+
+      setStatus(statusEl, "Reserving…");
+      setReserveEnabled(false);
+      dateInput.disabled = true;
+      if (filterInput) filterInput.disabled = true;
+
+      try {
+        await window.App.fetchJSON("/api/reservations/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            room_type_id: selection.roomTypeId,
+            date,
+            slot: selection.slot,
+          }),
+        });
+
+        window.App.toast("Reservation created successfully.", { variant: "success" });
+        await load(); // refresh availability and clear selection
+      } catch (e) {
+        const status = e?.status;
+        const msg = e?.data?.error || "Failed to reserve. Please try again.";
+
+        if (status === 409) {
+          window.App.toast(msg, { variant: "danger" });
+          await load(); // refresh to show the slot as reserved
+          return;
+        }
+
+        window.App.toast(msg, { variant: "danger" });
+        setStatus(statusEl, "Failed");
+      } finally {
+        dateInput.disabled = false;
+        if (filterInput) filterInput.disabled = false;
+      }
     });
 
     // Initial load on page open.

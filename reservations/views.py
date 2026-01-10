@@ -1,11 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import Reservation
 
 
 @login_required
+@ensure_csrf_cookie
 def checkout_view(request):
     """
     Day 1 placeholder page.
