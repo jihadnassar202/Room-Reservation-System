@@ -11,7 +11,11 @@ def checkout_view(request):
     Day 1 placeholder page.
     Day 2 will implement the availability matrix + AJAX reservation creation.
     """
-    return render(request, "reservations/checkout.html")
+    return render(
+        request,
+        "reservations/checkout.html",
+        {"initial_date": timezone.localdate().isoformat()},
+    )
 
 
 @login_required
@@ -40,5 +44,6 @@ def my_reservations_view(request):
         "reservations/my_reservations.html",
         {"upcoming": upcoming, "past": past},
     )
+
 
 

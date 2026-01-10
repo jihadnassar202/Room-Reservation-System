@@ -15,3 +15,4 @@ def add_class(bound_field, css_class: str):
     return bound_field.as_widget(attrs={"class": combined})
 
 
+

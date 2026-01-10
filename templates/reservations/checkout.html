@@ -9,7 +9,7 @@
         <div>
           <h1 class="h4 mb-1">Checkout</h1>
           <div class="text-body-secondary">
-            Select a date, see availability, and reserve a slot (coming next).
+            Select a date to see availability (live updates).
           </div>
         </div>
         <a class="btn btn-outline-primary" href="{% url 'reservations:my_reservations' %}">My Reservations</a>
@@ -19,30 +19,38 @@
     <div class="col-12">
       <div class="card shadow-sm">
         <div class="card-body p-4">
-          <div class="d-flex align-items-start gap-3">
-            <div class="flex-grow-1">
-              <div class="fw-semibold mb-1">Day 1 placeholder</div>
-              <div class="text-body-secondary">
-                On Day 2 we’ll implement the availability matrix (rooms × time slots), dynamic filtering, and AJAX reservation
-                creation with proper debouncing and loading/disabled states.
-              </div>
-            </div>
-          </div>
-
-          <hr class="my-4" />
-
           <div class="row g-3">
             <div class="col-12 col-md-4">
               <label class="form-label">Date</label>
-              <input type="date" class="form-control" disabled />
+              <input
+                id="checkoutDate"
+                type="date"
+                class="form-control"
+                value="{{ initial_date }}"
+                aria-describedby="checkoutHelp"
+              />
             </div>
             <div class="col-12 col-md-8">
               <label class="form-label">Room type filter</label>
-              <input type="text" class="form-control" placeholder="Search room types…" disabled />
+              <input id="roomFilter" type="text" class="form-control" placeholder="Search room types…" />
             </div>
           </div>
 
-          <div class="mt-4">
+          <div id="checkoutHelp" class="form-text text-body-secondary mt-2">
+            Availability updates automatically. Final “reserve from checkout” and slot matrix will be completed in the next feature.
+          </div>
+
+          <div class="mt-4" id="availabilityPreviewWrap">
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+              <div class="fw-semibold">Availability preview</div>
+              <div class="small text-body-secondary" id="availabilityStatus">Idle</div>
+            </div>
+            <div class="border rounded-3 p-3 bg-body-tertiary" id="availabilityPreview">
+              Select a date to load availability…
+            </div>
+          </div>
+
+          <div class="mt-3">
             <div class="text-body-secondary small">
               Tip: all user feedback in this project uses toasts/modals — no alerts.
             </div>
@@ -52,5 +60,11 @@
     </div>
   </div>
 {% endblock %}
+
+{% block extra_js %}
+  {% load static %}
+  <script src="{% static 'js/reservations/checkout.js' %}"></script>
+{% endblock %}
+
 
 

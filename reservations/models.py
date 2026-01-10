@@ -81,3 +81,4 @@ class Reservation(models.Model):
         return self.end_datetime() >= timezone.now()
 
 
+
