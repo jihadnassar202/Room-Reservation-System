@@ -60,3 +60,26 @@ class ReservationCreateForm(forms.Form):
         return [(v, label) for v, label in TimeSlot.choices if v not in reserved]
 
 
+class ReservationUpdateForm(ReservationCreateForm):
+    def __init__(self, *args, reservation: Reservation | None = None, **kwargs):
+        self.reservation = reservation
+        super().__init__(*args, **kwargs)
+
+    def _available_slot_choices(self, room_type_id: str | None, date_str: str | None):
+        if not room_type_id or not date_str:
+            return []
+        if not str(room_type_id).isdigit():
+            return []
+        try:
+            target_date = date_type.fromisoformat(str(date_str))
+        except ValueError:
+            return []
+
+        qs = Reservation.objects.filter(room_type_id=int(room_type_id), date=target_date)
+        if self.reservation:
+            qs = qs.exclude(id=self.reservation.id)
+
+        reserved = set(qs.values_list("slot", flat=True))
+        return [(v, label) for v, label in TimeSlot.choices if v not in reserved]
+
+

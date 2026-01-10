@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load form_tags %}
+
+{% block title %}Edit Reservation · Room Reservation{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <div>
+          <h1 class="h4 mb-1">Edit Reservation</h1>
+          <div class="text-body-secondary">
+            Update a future reservation only. Availability updates live when you change date or room type.
+          </div>
+        </div>
+        <a class="btn btn-outline-primary" href="{% url 'reservations:my_reservations' %}">Back to My Reservations</a>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          {% if not has_room_types %}
+            <div class="text-body-secondary">
+              No room types are configured yet. Please add Room Types in the admin first.
+            </div>
+          {% else %}
+            <form
+              method="post"
+              id="reservationEditForm"
+              data-reservation-id="{{ reservation.id }}"
+              novalidate
+            >
+              {% csrf_token %}
+
+              {% if form.non_field_errors %}
+                <div class="mb-3">
+                  {% for err in form.non_field_errors %}
+                    <div class="text-danger small">{{ err }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="{{ form.room_type.id_for_label }}">Room type</label>
+                  {% if form.room_type.errors %}
+                    {{ form.room_type|add_class:"form-select is-invalid" }}
+                    {% for err in form.room_type.errors %}
+                      <div class="invalid-feedback">{{ err }}</div>
+                    {% endfor %}
+                  {% else %}
+                    {{ form.room_type|add_class:"form-select" }}
+                  {% endif %}
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="{{ form.date.id_for_label }}">Date</label>
+                  {% if form.date.errors %}
+                    {{ form.date|add_class:"form-control is-invalid" }}
+                    {% for err in form.date.errors %}
+                      <div class="invalid-feedback">{{ err }}</div>
+                    {% endfor %}
+                  {% else %}
+                    {{ form.date|add_class:"form-control" }}
+                  {% endif %}
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label" for="{{ form.slot.id_for_label }}">Available time slots</label>
+                  {% if form.slot.errors %}
+                    {{ form.slot|add_class:"form-select is-invalid" }}
+                    {% for err in form.slot.errors %}
+                      <div class="invalid-feedback">{{ err }}</div>
+                    {% endfor %}
+                  {% else %}
+                    {{ form.slot|add_class:"form-select" }}
+                  {% endif %}
+                  <div class="form-text text-body-secondary">
+                    This dropdown shows only available slots (excluding your current reservation).
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                  <div class="fw-semibold">Slot status</div>
+                  <div class="small text-body-secondary" id="editStatus">Idle</div>
+                </div>
+                <div class="d-flex flex-wrap gap-2" id="editSlotBadges">
+                  <span class="badge text-bg-secondary">Loading…</span>
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-4">
+                <button type="submit" class="btn btn-primary" id="saveReservationBtn">Save changes</button>
+                <div class="small text-body-secondary">You will be asked to confirm.</div>
+              </div>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {% load static %}
+  <script src="{% static 'js/reservations/reservation_edit.js' %}"></script>
+{% endblock %}
+
+

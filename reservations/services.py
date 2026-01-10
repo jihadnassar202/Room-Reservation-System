@@ -117,10 +117,20 @@ def update_reservation(
             if not reservation.is_future():
                 raise PastReservationError("Past reservations cannot be edited.")
 
-            room_type_ids = {reservation.room_type_id, new_data.room_type_id}
-            list(RoomType.objects.select_for_update().filter(id__in=room_type_ids).only("id"))
+            new_room_type = RoomType.objects.select_for_update().only("id", "is_active").get(
+                id=new_data.room_type_id, is_active=True
+            )
+            if reservation.room_type_id != new_room_type.id:
+                RoomType.objects.select_for_update().filter(id=reservation.room_type_id).only("id")
 
-            reservation.room_type_id = new_data.room_type_id
+            if Reservation.objects.exclude(id=reservation.id).filter(
+                room_type=new_room_type,
+                date=new_data.date,
+                slot=new_data.slot,
+            ).exists():
+                raise SlotUnavailableError("That time slot is already reserved.")
+
+            reservation.room_type = new_room_type
             reservation.date = new_data.date
             reservation.slot = new_data.slot
             reservation.save(update_fields=["room_type", "date", "slot", "updated_at"])

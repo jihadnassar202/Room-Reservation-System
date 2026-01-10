@@ -42,9 +42,12 @@
                       <td>{{ r.date }}</td>
                       <td>{{ r.get_slot_display }}</td>
                       <td class="text-end">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Edit will be enabled in the next feature">
+                        <a
+                          class="btn btn-sm btn-outline-secondary"
+                          href="{% url 'reservations:reservation_edit' r.id %}"
+                        >
                           Edit
-                        </button>
+                        </a>
                         <button
                           type="button"
                           class="btn btn-sm btn-outline-danger"
