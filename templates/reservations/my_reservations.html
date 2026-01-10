@@ -21,30 +21,31 @@
         <div class="card-body p-4">
           <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
             <h2 class="h6 mb-0">Upcoming</h2>
-            <span class="badge text-bg-primary" id="upcomingCount">{{ upcoming|length }}</span>
+            <span class="badge text-bg-primary" id="upcomingCount" aria-live="polite">{{ upcoming|length }}</span>
           </div>
 
           {% if upcoming %}
             <div class="table-responsive">
-              <table class="table align-middle mb-0">
+              <table class="table table-hover align-middle mb-0">
                 <thead>
                   <tr>
-                    <th>Room</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th class="text-end">Actions</th>
+                    <th scope="col">Room</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col" class="text-end">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="upcomingBody">
                   {% for r in upcoming %}
                     <tr data-reservation-row data-reservation-id="{{ r.id }}">
-                      <td class="fw-semibold">{{ r.room_type.name }}</td>
+                      <th scope="row" class="fw-semibold">{{ r.room_type.name }}</th>
                       <td>{{ r.date }}</td>
                       <td>{{ r.get_slot_display }}</td>
                       <td class="text-end">
                         <a
                           class="btn btn-sm btn-outline-secondary"
                           href="{% url 'reservations:reservation_edit' r.id %}"
+                          aria-label="Edit reservation for {{ r.room_type.name }} on {{ r.date }} at {{ r.get_slot_display }}"
                         >
                           Edit
                         </a>
@@ -53,6 +54,7 @@
                           class="btn btn-sm btn-outline-danger"
                           data-action="cancel"
                           data-reservation-id="{{ r.id }}"
+                          aria-label="Cancel reservation for {{ r.room_type.name }} on {{ r.date }} at {{ r.get_slot_display }}"
                         >
                           Cancel
                         </button>
@@ -63,7 +65,13 @@
               </table>
             </div>
           {% else %}
-            <div class="text-body-secondary" id="upcomingEmpty">No upcoming reservations yet.</div>
+            <div class="text-body-secondary" id="upcomingEmpty">
+              No upcoming reservations yet.
+              <div class="d-flex flex-wrap gap-2 mt-3">
+                <a class="btn btn-sm btn-primary" href="{% url 'reservations:checkout' %}">Go to Checkout</a>
+                <a class="btn btn-sm btn-outline-primary" href="{% url 'reservations:reservation_create' %}">New Reservation</a>
+              </div>
+            </div>
           {% endif %}
         </div>
       </div>
@@ -74,24 +82,24 @@
         <div class="card-body p-4">
           <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
             <h2 class="h6 mb-0">Past</h2>
-            <span class="badge text-bg-secondary" id="pastCount">{{ past|length }}</span>
+            <span class="badge text-bg-secondary" id="pastCount" aria-live="polite">{{ past|length }}</span>
           </div>
 
           {% if past %}
             <div class="table-responsive">
-              <table class="table align-middle mb-0">
+              <table class="table table-hover align-middle mb-0">
                 <thead>
                   <tr>
-                    <th>Room</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th class="text-end">Status</th>
+                    <th scope="col">Room</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col" class="text-end">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for r in past %}
                     <tr>
-                      <td class="fw-semibold">{{ r.room_type.name }}</td>
+                      <th scope="row" class="fw-semibold">{{ r.room_type.name }}</th>
                       <td>{{ r.date }}</td>
                       <td>{{ r.get_slot_display }}</td>
                       <td class="text-end">

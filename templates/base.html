@@ -25,11 +25,17 @@
   </head>
 
   <body class="app-page">
+    <a class="visually-hidden-focusable skip-link" href="#main-content">Skip to content</a>
     {% include "partials/_navbar.html" %}
 
-    <main class="container py-4">{% block content %}{% endblock %}</main>
+    <main id="main-content" class="container py-4" role="main" tabindex="-1">{% block content %}{% endblock %}</main>
 
-    <div id="app-toast-container" class="toast-container position-fixed top-0 end-0 p-3"></div>
+    <div
+      id="app-toast-container"
+      class="toast-container position-fixed top-0 end-0 p-3"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
 
     <div
       class="modal fade"

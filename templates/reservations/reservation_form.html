@@ -60,12 +60,12 @@
                 <div class="col-12">
                   <label class="form-label" for="{{ form.slot.id_for_label }}">Available time slots</label>
                   {% if form.slot.errors %}
-                    {{ form.slot|add_class:"form-select is-invalid" }}
+                    {{ form.slot.as_widget(attrs={'class':'form-select is-invalid','aria-describedby':'slotHelp'}) }}
                     {% for err in form.slot.errors %}
                       <div class="invalid-feedback">{{ err }}</div>
                     {% endfor %}
                   {% else %}
-                    {{ form.slot|add_class:"form-select" }}
+                    {{ form.slot.as_widget(attrs={'class':'form-select','aria-describedby':'slotHelp'}) }}
                   {% endif %}
                   <div class="form-text text-body-secondary" id="slotHelp">
                     Only available slots are shown in the dropdown. Reserved slots are marked below.
@@ -76,7 +76,7 @@
               <div class="mt-4">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
                   <div class="fw-semibold">Slot status</div>
-                  <div class="small text-body-secondary" id="formStatus">Idle</div>
+                  <div class="small text-body-secondary" id="formStatus" role="status" aria-live="polite">Idle</div>
                 </div>
                 <div class="d-flex flex-wrap gap-2" id="slotBadges">
                   <span class="badge text-bg-secondary">Loading…</span>

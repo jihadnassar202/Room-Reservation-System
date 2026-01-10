@@ -31,9 +31,9 @@
 
     headEl.innerHTML = `
       <tr>
-        <th class="text-body-secondary small">Room</th>
+        <th scope="col" class="text-body-secondary small">Room</th>
         ${timeSlots
-          .map((s) => `<th class="text-body-secondary small text-center">${escapeHtml(s.label)}</th>`)
+          .map((s) => `<th scope="col" class="text-body-secondary small text-center">${escapeHtml(s.label)}</th>`)
           .join("")}
       </tr>
     `;
@@ -55,11 +55,20 @@
             const slotValue = Number(s.value);
             const isReserved = reserved.has(slotValue);
             const isSelected = selection && selection.roomTypeId === rt.id && selection.slot === slotValue;
+            const slotText = slotLabel.get(slotValue) || String(s.label || slotValue);
+            const ariaBase = `${rt.name} at ${slotText}`;
 
             if (isReserved) {
               return `
                 <td class="text-center">
-                  <button type="button" class="btn btn-sm btn-danger w-100" disabled aria-disabled="true">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger w-100"
+                    disabled
+                    aria-disabled="true"
+                    title="Reserved"
+                    aria-label="Reserved: ${escapeHtml(ariaBase)}"
+                  >
                     Reserved
                   </button>
                 </td>
@@ -67,6 +76,8 @@
             }
 
             const btnClass = isSelected ? "btn-primary" : "btn-outline-success";
+            const btnText = isSelected ? "Selected" : "Select";
+            const pressed = isSelected ? "true" : "false";
             return `
               <td class="text-center">
                 <button
@@ -74,8 +85,10 @@
                   class="btn btn-sm ${btnClass} w-100"
                   data-room-type-id="${rt.id}"
                   data-slot="${slotValue}"
+                  aria-pressed="${pressed}"
+                  aria-label="${escapeHtml(btnText)}: ${escapeHtml(ariaBase)}"
                 >
-                  Available
+                  ${btnText}
                 </button>
               </td>
             `;
@@ -84,7 +97,7 @@
 
         return `
           <tr>
-            <th class="fw-semibold">${escapeHtml(rt.name)}</th>
+            <th scope="row" class="fw-semibold">${escapeHtml(rt.name)}</th>
             ${cols}
           </tr>
         `;
@@ -100,6 +113,7 @@
     const bodyEl = document.getElementById("availabilityBody");
     const selectedSummaryEl = document.getElementById("selectedSummary");
     const reserveBtn = document.getElementById("reserveSelectedBtn");
+    const matrixWrap = document.getElementById("availabilityMatrixWrap");
 
     if (!dateInput || !headEl || !bodyEl || !window.App?.fetchJSON) return;
 
@@ -127,6 +141,7 @@
     const setReserveEnabled = (enabled) => {
       if (!reserveBtn) return;
       reserveBtn.disabled = !enabled;
+      reserveBtn.setAttribute("aria-disabled", reserveBtn.disabled ? "true" : "false");
     };
 
     const load = async () => {
@@ -138,6 +153,8 @@
       currentController = new AbortController();
 
       inFlight = true;
+      matrixWrap?.classList.add("is-loading");
+      matrixWrap?.setAttribute("aria-busy", "true");
       dateInput.disabled = true;
       if (filterInput) filterInput.disabled = true;
       setStatus(statusEl, "Loading…");
@@ -162,6 +179,8 @@
       } finally {
         if (mySeq === requestSeq) {
           inFlight = false;
+          matrixWrap?.classList.remove("is-loading");
+          matrixWrap?.setAttribute("aria-busy", "false");
           dateInput.disabled = false;
           if (filterInput) filterInput.disabled = false;
         }
@@ -185,15 +204,19 @@
       if (!btn) return;
       if (!lastPayload) return;
 
-      selection = {
-        roomTypeId: Number(btn.dataset.roomTypeId),
-        slot: Number(btn.dataset.slot),
-      };
+      const roomTypeId = Number(btn.dataset.roomTypeId);
+      const slot = Number(btn.dataset.slot);
+
+      if (selection && selection.roomTypeId === roomTypeId && selection.slot === slot) {
+        selection = null;
+        setReserveEnabled(false);
+      } else {
+        selection = { roomTypeId, slot };
+        setReserveEnabled(true);
+      }
 
       renderMatrix(headEl, bodyEl, lastPayload, filterInput?.value || "", selection);
       updateSelectedSummary();
-
-      setReserveEnabled(true);
     });
 
     reserveBtn?.addEventListener("click", async () => {

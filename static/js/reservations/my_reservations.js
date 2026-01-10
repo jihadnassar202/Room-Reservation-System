@@ -23,7 +23,7 @@
       const reservationId = Number(btn.dataset.reservationId);
       const row = btn.closest("[data-reservation-row]");
 
-      const cells = row?.querySelectorAll?.("td") || [];
+      const cells = row?.querySelectorAll?.("th, td") || [];
       const roomName = text(cells[0]);
       const dateText = text(cells[1]);
       const slotText = text(cells[2]);
@@ -37,6 +37,7 @@
       if (!ok) return;
 
       btn.disabled = true;
+      row?.setAttribute?.("aria-busy", "true");
       const oldLabel = btn.textContent;
       btn.textContent = "Cancelling…";
 
@@ -70,6 +71,7 @@
       } finally {
         btn.disabled = false;
         btn.textContent = oldLabel;
+        row?.removeAttribute?.("aria-busy");
       }
     });
   });

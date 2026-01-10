@@ -96,8 +96,20 @@
 
       inFlight = true;
       updateSubmitEnabled();
+      form.setAttribute("aria-busy", "true");
       setDisabled([roomTypeEl, dateEl], true);
+      slotEl.innerHTML = `<option value="">Loading…</option>`;
+      slotEl.value = "";
+      slotEl.disabled = true;
       setText(statusEl, "Loading…");
+      if (badgesEl) {
+        badgesEl.innerHTML = `
+          <span class="badge text-bg-secondary">
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Loading…
+          </span>
+        `;
+      }
 
       try {
         const payload = await window.App.fetchJSON(
@@ -124,6 +136,7 @@
           inFlight = false;
           setDisabled([roomTypeEl, dateEl], false);
           updateSubmitEnabled();
+          form.removeAttribute("aria-busy");
         }
       }
     };
@@ -140,6 +153,7 @@
       updateSubmitEnabled();
       if (submitBtn.disabled) return;
 
+      const prevSlotDisabled = slotEl.disabled;
       const roomTypeId = Number(roomTypeEl.value);
       const date = dateEl.value;
       const slot = Number(slotEl.value);
@@ -157,8 +171,11 @@
 
       inFlight = true;
       updateSubmitEnabled();
-      setDisabled([roomTypeEl, dateEl, slotEl], true);
+      setDisabled([roomTypeEl, dateEl], true);
+      slotEl.disabled = true;
       setText(statusEl, "Saving…");
+      form.setAttribute("aria-busy", "true");
+      let refreshedAvailability = false;
 
       try {
         await window.App.fetchJSON(`/api/reservations/${reservationId}/update/`, {
@@ -184,11 +201,16 @@
 
         if (status === 409) {
           await loadAvailability();
+          refreshedAvailability = true;
         }
       } finally {
         inFlight = false;
-        setDisabled([roomTypeEl, dateEl, slotEl], false);
+        setDisabled([roomTypeEl, dateEl], false);
+        if (!refreshedAvailability) {
+          slotEl.disabled = prevSlotDisabled;
+        }
         updateSubmitEnabled();
+        form.removeAttribute("aria-busy");
       }
     });
 
