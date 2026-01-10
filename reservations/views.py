@@ -21,6 +21,7 @@ def checkout_view(request):
 
 
 @login_required
+@ensure_csrf_cookie
 def my_reservations_view(request):
     """
     Day 1 foundation: split user reservations into upcoming vs past.

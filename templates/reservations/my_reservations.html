@@ -21,7 +21,7 @@
         <div class="card-body p-4">
           <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
             <h2 class="h6 mb-0">Upcoming</h2>
-            <span class="badge text-bg-primary">{{ upcoming|length }}</span>
+            <span class="badge text-bg-primary" id="upcomingCount">{{ upcoming|length }}</span>
           </div>
 
           {% if upcoming %}
@@ -35,15 +35,24 @@
                     <th class="text-end">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="upcomingBody">
                   {% for r in upcoming %}
-                    <tr>
+                    <tr data-reservation-row data-reservation-id="{{ r.id }}">
                       <td class="fw-semibold">{{ r.room_type.name }}</td>
                       <td>{{ r.date }}</td>
                       <td>{{ r.get_slot_display }}</td>
                       <td class="text-end">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled>Edit</button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" disabled>Cancel</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Edit will be enabled in the next feature">
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          data-action="cancel"
+                          data-reservation-id="{{ r.id }}"
+                        >
+                          Cancel
+                        </button>
                       </td>
                     </tr>
                   {% endfor %}
@@ -51,7 +60,7 @@
               </table>
             </div>
           {% else %}
-            <div class="text-body-secondary">No upcoming reservations yet.</div>
+            <div class="text-body-secondary" id="upcomingEmpty">No upcoming reservations yet.</div>
           {% endif %}
         </div>
       </div>
@@ -62,7 +71,7 @@
         <div class="card-body p-4">
           <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
             <h2 class="h6 mb-0">Past</h2>
-            <span class="badge text-bg-secondary">{{ past|length }}</span>
+            <span class="badge text-bg-secondary" id="pastCount">{{ past|length }}</span>
           </div>
 
           {% if past %}
@@ -97,6 +106,11 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block extra_js %}
+  {% load static %}
+  <script src="{% static 'js/reservations/my_reservations.js' %}"></script>
 {% endblock %}
 
 

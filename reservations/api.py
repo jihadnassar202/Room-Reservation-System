@@ -3,13 +3,20 @@ from __future__ import annotations
 import json
 from datetime import date as date_type
 
+from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 
 from .models import Reservation, RoomType, TimeSlot
-from .services import PastReservationError, ReservationInput, SlotUnavailableError, create_reservation
+from .services import (
+    PastReservationError,
+    ReservationInput,
+    SlotUnavailableError,
+    cancel_reservation,
+    create_reservation,
+)
 
 
 def _parse_date(value: str) -> date_type:
@@ -126,5 +133,28 @@ def create_reservation_api(request):
         },
         status=201,
     )
+
+
+@require_POST
+def cancel_reservation_api(request, reservation_id: int):
+    """
+    POST /api/reservations/<id>/cancel/
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentication required."}, status=401)
+
+    try:
+        cancel_reservation(user=request.user, reservation_id=reservation_id)
+    except Reservation.DoesNotExist:
+        return JsonResponse({"error": "Reservation not found."}, status=404)
+    except PastReservationError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+    except PermissionDenied:
+        return JsonResponse(
+            {"error": "You do not have permission to cancel this reservation."},
+            status=403,
+        )
+
+    return JsonResponse({"success": True, "message": "Reservation cancelled."})
 
 
