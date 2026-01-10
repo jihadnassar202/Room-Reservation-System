@@ -1,10 +1,157 @@
-/* Placeholder theme tokens (final branding/palette will be applied later). */
-:root {
-  --brand-primary: #0d6efd; /* bootstrap primary placeholder */
+/*
+  Brand theme (logo-based): deep teal + gold.
+  Implemented as Bootstrap 5.3 variable overrides + small component tweaks.
+*/
+
+:root[data-bs-theme="dark"] {
+  --brand-bg: #0e2a2a;
+  --brand-surface: #123534;
+  --brand-surface-2: #16403e;
+
+  --brand-primary: #c9b26b;
+  --brand-primary-hover: #b89a45;
+
+  --brand-text: #f4f1e6;
+  --brand-muted: #b9b09a;
+
+  --brand-border: rgba(201, 178, 107, 0.22);
+  --brand-border-soft: rgba(201, 178, 107, 0.14);
+  --brand-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+
+  --bs-body-bg: var(--brand-bg);
+  --bs-body-color: var(--brand-text);
+  --bs-secondary-color: var(--brand-muted);
+  --bs-tertiary-color: rgba(244, 241, 230, 0.65);
+  --bs-emphasis-color: var(--brand-text);
+
+  --bs-border-color: var(--brand-border);
+  --bs-border-color-translucent: var(--brand-border-soft);
+
+  --bs-primary: var(--brand-primary);
+  --bs-primary-rgb: 201, 178, 107;
+  --bs-link-color: var(--brand-primary);
+  --bs-link-hover-color: var(--brand-primary-hover);
+
+  --bs-tertiary-bg: var(--brand-surface);
+  --bs-secondary-bg: var(--brand-surface-2);
+  --bs-card-bg: var(--brand-surface);
+  --bs-modal-bg: var(--brand-surface);
+  --bs-dropdown-bg: var(--brand-surface);
+  --bs-popover-bg: var(--brand-surface);
+
+  --bs-focus-ring-color: rgba(201, 178, 107, 0.35);
+
+  --bs-body-font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+    "Liberation Sans", sans-serif;
+  --bs-font-sans-serif: var(--bs-body-font-family);
 }
 
 .app-page {
   min-height: 100vh;
+  background:
+    radial-gradient(1200px circle at 10% 0%, rgba(201, 178, 107, 0.11), transparent 40%),
+    radial-gradient(900px circle at 90% 100%, rgba(201, 178, 107, 0.08), transparent 45%),
+    var(--bs-body-bg);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+.navbar-brand {
+  font-family: "Playfair Display", Georgia, serif;
+  letter-spacing: 0.2px;
+}
+
+.navbar {
+  background-color: rgba(18, 53, 52, 0.9) !important;
+  backdrop-filter: blur(8px);
+}
+
+.navbar-brand {
+  color: var(--brand-primary) !important;
+}
+
+.navbar .nav-link,
+.navbar .navbar-text,
+.navbar .btn-link.nav-link {
+  color: rgba(244, 241, 230, 0.78);
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus,
+.navbar .btn-link.nav-link:hover,
+.navbar .btn-link.nav-link:focus {
+  color: var(--brand-primary);
+}
+
+.card {
+  border-color: var(--bs-border-color-translucent);
+  box-shadow: var(--brand-shadow);
+}
+
+.btn-primary {
+  --bs-btn-color: #0b1f1f;
+  --bs-btn-bg: var(--brand-primary);
+  --bs-btn-border-color: var(--brand-primary);
+  --bs-btn-hover-color: #0b1f1f;
+  --bs-btn-hover-bg: var(--brand-primary-hover);
+  --bs-btn-hover-border-color: var(--brand-primary-hover);
+  --bs-btn-active-color: #0b1f1f;
+  --bs-btn-active-bg: var(--brand-primary-hover);
+  --bs-btn-active-border-color: var(--brand-primary-hover);
+  --bs-btn-focus-shadow-rgb: 201, 178, 107;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--brand-primary);
+  --bs-btn-border-color: var(--brand-border);
+  --bs-btn-hover-bg: var(--brand-primary);
+  --bs-btn-hover-border-color: var(--brand-primary);
+  --bs-btn-hover-color: #0b1f1f;
+  --bs-btn-active-bg: var(--brand-primary-hover);
+  --bs-btn-active-border-color: var(--brand-primary-hover);
+  --bs-btn-active-color: #0b1f1f;
+  --bs-btn-focus-shadow-rgb: 201, 178, 107;
+}
+
+.btn-outline-secondary {
+  --bs-btn-border-color: rgba(244, 241, 230, 0.22);
+  --bs-btn-hover-bg: rgba(244, 241, 230, 0.08);
+  --bs-btn-hover-border-color: rgba(244, 241, 230, 0.25);
+}
+
+.text-bg-primary {
+  color: #0b1f1f !important;
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+  background-color: var(--brand-surface-2);
+  border-color: var(--bs-border-color-translucent);
+  color: var(--brand-text);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 0.25rem rgba(201, 178, 107, 0.25);
+}
+
+.table {
+  --bs-table-bg: var(--brand-surface);
+  --bs-table-color: var(--brand-text);
+  --bs-table-border-color: var(--bs-border-color-translucent);
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.03);
+  --bs-table-hover-bg: rgba(201, 178, 107, 0.06);
+}
+
+.modal-content,
+.dropdown-menu,
+.popover {
+  border-color: var(--bs-border-color-translucent);
 }
 
 /* Ensure toasts render above most UI (including modals). */
