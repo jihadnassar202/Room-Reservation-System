@@ -46,4 +46,18 @@ Configure SMTP in `.env` using:
 
 If `EMAIL_HOST` is empty, Django uses the **console email backend** (emails are printed to the terminal).
 
+## Seed default Room Types (admin helper)
+
+To quickly seed predefined room types (idempotent):
+
+```bash
+python3 manage.py seed_room_types
+```
+
+To also update existing rows to match the defaults:
+
+```bash
+python3 manage.py seed_room_types --update-existing
+```
+
 

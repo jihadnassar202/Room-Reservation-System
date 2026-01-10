@@ -8,6 +8,9 @@ from django.utils import timezone
 class RoomType(models.Model):
     name = models.CharField(max_length=80, unique=True)
     description = models.TextField(blank=True)
+    capacity_min = models.PositiveSmallIntegerField(null=True, blank=True)
+    capacity_max = models.PositiveSmallIntegerField(null=True, blank=True)
+    default_equipment = models.JSONField(default=list, blank=True)
     is_active = models.BooleanField(default=True)
     display_order = models.PositiveSmallIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
