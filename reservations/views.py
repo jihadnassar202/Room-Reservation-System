@@ -1,25 +1,24 @@
 from datetime import date as date_type
 
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.http import Http404
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from django.http import Http404
-
 from .forms import ReservationCreateForm, ReservationUpdateForm
-from .models import Reservation, RoomType, TimeSlot
-from .services import PastReservationError, ReservationInput, SlotUnavailableError, create_reservation
-from .services import update_reservation
+from .models import Reservation, RoomType
+from .services import PastReservationError, ReservationInput, SlotUnavailableError, create_reservation, update_reservation
 
 
 @login_required
 @ensure_csrf_cookie
-def checkout_view(request):
+def room_availability_view(request):
     """
-    Day 1 placeholder page.
-    Day 2 will implement the availability matrix + AJAX reservation creation.
+    Room Availability:
+    - Primary UX: date-driven availability (AJAX) + reserve from the same page.
+    - JS-enhanced UX; a server-rendered reservation form is also available for no-JS users.
     """
     date_str = (request.GET.get("date") or "").strip()
     initial_date = timezone.localdate()
@@ -43,44 +42,73 @@ def checkout_view(request):
         )
         .order_by("display_order", "name")
     )
-
-    selected_room_type_id = None
-    selected_room_type_id_str = (request.GET.get("room_type_id") or "").strip()
-    if selected_room_type_id_str.isdigit():
-        selected_room_type_id = int(selected_room_type_id_str)
-        if not any(rt.id == selected_room_type_id for rt in room_types):
-            selected_room_type_id = None
-
-    # Progressive enhancement fallback: if a room_type_id is provided (e.g., via card link),
-    # render a read-only availability grid server-side so the page remains usable without JS.
-    initial_availability = None
-    if selected_room_type_id is not None:
-        selected_rt = next((rt for rt in room_types if rt.id == selected_room_type_id), None)
-        reserved_slots = sorted(
-            int(v)
-            for v in Reservation.objects.filter(date=initial_date, room_type_id=selected_room_type_id).values_list(
-                "slot", flat=True
-            )
-        )
-        initial_availability = {
-            "date": initial_date.isoformat(),
-            "time_slots": [{"value": v, "label": label} for v, label in TimeSlot.choices],
-            "room_types": [
-                {
-                    "id": selected_room_type_id,
-                    "name": getattr(selected_rt, "name", "") or "Room",
-                    "reserved_slots": reserved_slots,
-                }
-            ],
-        }
     return render(
         request,
-        "reservations/checkout.html",
+        "reservations/room_availability.html",
         {
             "initial_date": initial_date.isoformat(),
             "room_types": room_types,
-            "selected_room_type_id": selected_room_type_id,
-            "initial_availability": initial_availability,
+        },
+    )
+
+
+@login_required
+@ensure_csrf_cookie
+def reservation_create_view(request):
+    """
+    Server-rendered (no-JS) reservation flow:
+    - Uses a Django Form (ReservationCreateForm).
+    - Slot choices are filtered server-side to ONLY available slots for the selected room + date.
+    - Reservation creation happens via a normal POST handled by this Django view (no JS fetch required).
+    """
+    room_types_qs = RoomType.objects.filter(is_active=True).only("id", "name", "display_order").order_by(
+        "display_order", "name"
+    )
+
+    if request.method == "POST":
+        form = ReservationCreateForm(
+            request.POST,
+            room_types_qs=room_types_qs,
+            slot_help_id="createSlotHelp",
+        )
+
+        action = (request.POST.get("action") or "").strip().lower()
+        if action == "reserve":
+            if form.is_valid():
+                try:
+                    create_reservation(
+                        user=request.user,
+                        data=ReservationInput(
+                            room_type_id=form.cleaned_data["room_type"].id,
+                            date=form.cleaned_data["date"],
+                            slot=form.cleaned_data["slot"],
+                        ),
+                    )
+                except SlotUnavailableError as exc:
+                    form.add_error("slot", str(exc))
+                except PastReservationError as exc:
+                    form.add_error(None, str(exc))
+                except RoomType.DoesNotExist:
+                    form.add_error("room_type", "Room type not found.")
+                else:
+                    messages.success(request, "Reservation created successfully.")
+                    return redirect("reservations:my_reservations")
+
+            messages.error(request, "Please fix the highlighted fields and try again.")
+        # else: action == "update" (or missing) -> re-render to refresh server-side slot choices.
+    else:
+        form = ReservationCreateForm(
+            room_types_qs=room_types_qs,
+            slot_help_id="createSlotHelp",
+            initial={"date": timezone.localdate()},
+        )
+
+    return render(
+        request,
+        "reservations/reservation_create.html",
+        {
+            "form": form,
+            "has_room_types": room_types_qs.exists(),
         },
     )
 
@@ -111,54 +139,6 @@ def my_reservations_view(request):
         request,
         "reservations/my_reservations.html",
         {"upcoming": upcoming, "past": past},
-    )
-
-
-@login_required
-@ensure_csrf_cookie
-def reservation_create_view(request):
-    room_types_qs = RoomType.objects.filter(is_active=True).only("id", "name", "display_order").order_by(
-        "display_order", "name"
-    )
-
-    initial_date = timezone.localdate()
-    initial_room_type = room_types_qs.first()
-
-    if request.method == "POST":
-        form = ReservationCreateForm(request.POST, room_types_qs=room_types_qs)
-        if form.is_valid():
-            try:
-                create_reservation(
-                    user=request.user,
-                    data=ReservationInput(
-                        room_type_id=form.cleaned_data["room_type"].id,
-                        date=form.cleaned_data["date"],
-                        slot=form.cleaned_data["slot"],
-                    ),
-                )
-            except SlotUnavailableError as exc:
-                form.add_error("slot", str(exc))
-            except PastReservationError as exc:
-                form.add_error(None, str(exc))
-            else:
-                messages.success(request, "Reservation created successfully.")
-                return redirect("reservations:my_reservations")
-
-        messages.error(request, "Please fix the highlighted fields and try again.")
-    else:
-        form = ReservationCreateForm(
-            room_types_qs=room_types_qs,
-            initial={"room_type": initial_room_type, "date": initial_date},
-        )
-
-    return render(
-        request,
-        "reservations/reservation_form.html",
-        {
-            "form": form,
-            "initial_date": initial_date.isoformat(),
-            "has_room_types": room_types_qs.exists(),
-        },
     )
 
 

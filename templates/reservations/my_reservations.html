@@ -12,7 +12,7 @@
             Upcoming reservations can be edited/cancelled later. Past reservations are view-only.
           </div>
         </div>
-        <a class="btn btn-primary" href="{% url 'reservations:checkout' %}">Go to Checkout</a>
+        <a class="btn btn-primary" href="{% url 'reservations:room_availability' %}">Room Availability</a>
       </div>
     </div>
 
@@ -68,8 +68,7 @@
             <div class="text-body-secondary" id="upcomingEmpty">
               No upcoming reservations yet.
               <div class="d-flex flex-wrap gap-2 mt-3">
-                <a class="btn btn-sm btn-primary" href="{% url 'reservations:checkout' %}">Go to Checkout</a>
-                <a class="btn btn-sm btn-outline-primary" href="{% url 'reservations:reservation_create' %}">New Reservation</a>
+                <a class="btn btn-sm btn-primary" href="{% url 'reservations:room_availability' %}">Check availability</a>
               </div>
             </div>
           {% endif %}

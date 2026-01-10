@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Room Availability · Room Reservation{% endblock %}
+
+{% block content %}
+  <div class="row g-3">
+    <div class="col-12">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+          <h1 class="h4 mb-1">Room Availability</h1>
+          <div class="text-body-secondary">
+            Select a date to view availability, then reserve a time slot from a room card.
+          </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <a class="btn btn-outline-primary" href="{% url 'reservations:my_reservations' %}">My Reservations</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <form method="get" class="row g-3" id="availabilityFiltersForm" novalidate>
+            <div class="col-12 col-md-4">
+              <label class="form-label" for="availabilityDate">Date</label>
+              <input
+                id="availabilityDate"
+                name="date"
+                type="date"
+                class="form-control"
+                value="{{ initial_date }}"
+                aria-describedby="availabilityHelp"
+              />
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label" for="roomFilter">Room type filter</label>
+              <input
+                id="roomFilter"
+                type="text"
+                class="form-control"
+                placeholder="Search room types…"
+                autocomplete="off"
+                aria-describedby="availabilityHelp"
+              />
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="form-label">After reserve</div>
+              <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" value="1" id="redirectAfterReserve" />
+                <label class="form-check-label" for="redirectAfterReserve">Go to My Reservations</label>
+              </div>
+            </div>
+            <noscript>
+              <div class="col-12">
+                <button type="submit" class="btn btn-outline-primary">Update</button>
+              </div>
+            </noscript>
+          </form>
+
+          <noscript>
+            <div class="alert alert-warning mt-3 mb-0" role="alert">
+              JavaScript is disabled. To create a reservation, use the
+              <a class="alert-link" href="{% url 'reservations:reservation_create' %}">New Reservation</a>
+              form.
+            </div>
+          </noscript>
+
+          <div id="availabilityHelp" class="form-text text-body-secondary mt-2">
+            Availability updates automatically when you change the date (no page reload).
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 align-items-center small mt-3">
+            <span class="badge text-bg-success">Available</span>
+            <span class="badge text-bg-danger">Reserved</span>
+            <span class="badge text-bg-primary">Selected</span>
+          </div>
+
+          <div
+            class="mt-4"
+            id="roomCardsWrap"
+            aria-label="Room types"
+            data-my-reservations-url="{% url 'reservations:my_reservations' %}"
+          >
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+              <div class="fw-semibold">Room types</div>
+              <div class="small text-body-secondary" id="roomCardsStatus" role="status" aria-live="polite">Idle</div>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3" id="roomCardsGrid">
+              {% for rt in room_types %}
+                <div class="col" data-room-type-col>
+                  <div
+                    class="card h-100 room-card"
+                    data-room-type-id="{{ rt.id }}"
+                    data-room-type-name="{{ rt.name }}"
+                    aria-label="Availability for {{ rt.name }}"
+                  >
+                    <div class="card-body">
+                      <div class="d-flex align-items-start justify-content-between gap-2">
+                        <div>
+                          <div class="h6 mb-1">{{ rt.name }}</div>
+                          {% if rt.description %}
+                            <div class="small text-body-secondary mb-2">{{ rt.description }}</div>
+                          {% endif %}
+                        </div>
+                        <span
+                          class="badge text-bg-secondary"
+                          data-role="room-card-summary"
+                          data-room-type-id="{{ rt.id }}"
+                          title="Availability summary for selected date"
+                        >
+                          —
+                        </span>
+                      </div>
+
+                      <div class="small text-body-secondary">
+                        Capacity:
+                        <span class="text-body-emphasis">
+                          {% if rt.capacity_min and rt.capacity_max %}
+                            {{ rt.capacity_min }}–{{ rt.capacity_max }}
+                          {% elif rt.capacity_min %}
+                            ≥ {{ rt.capacity_min }}
+                          {% elif rt.capacity_max %}
+                            ≤ {{ rt.capacity_max }}
+                          {% else %}
+                            —
+                          {% endif %}
+                        </span>
+                      </div>
+
+                      {% if rt.default_equipment %}
+                        <div class="mt-2 d-flex flex-wrap gap-2">
+                          {% for eq in rt.default_equipment %}
+                            {% with eq_l=eq|lower %}
+                              <span class="badge text-bg-secondary" title="{{ eq }}">
+                                {% if eq_l == "projector" %}
+                                  📽️
+                                {% elif eq_l == "computers" or eq_l == "pcs" %}
+                                  🖥️
+                                {% elif eq_l == "ac" %}
+                                  ❄️
+                                {% elif eq_l == "whiteboard" %}
+                                  📝
+                                {% elif "sound" in eq_l %}
+                                  🔊
+                                {% elif "video" in eq_l %}
+                                  🎥
+                                {% else %}
+                                  🔧
+                                {% endif %}
+                                {{ eq }}
+                              </span>
+                            {% endwith %}
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+
+                      <div class="mt-3">
+                        <div
+                          class="small text-body-secondary mb-2"
+                          data-role="room-card-slot-status"
+                          data-room-type-id="{{ rt.id }}"
+                        >
+                          Loading…
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2" data-role="room-card-slots" data-room-type-id="{{ rt.id }}">
+                          <span class="badge text-bg-secondary">
+                            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                            Loading…
+                          </span>
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-primary"
+                            data-action="reserve"
+                            data-room-type-id="{{ rt.id }}"
+                            disabled
+                            aria-disabled="true"
+                          >
+                            Reserve
+                          </button>
+                          <div
+                            class="small text-body-secondary"
+                            data-role="room-card-selection"
+                            data-room-type-id="{{ rt.id }}"
+                            aria-live="polite"
+                          >
+                            No slot selected
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% empty %}
+                <div class="col">
+                  <div class="text-body-secondary">
+                    No room types are configured yet. Please add Room Types in the admin first.
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <div class="text-body-secondary small">
+              Tip: select an available slot on a room card, then click Reserve to confirm.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {% load static %}
+  <script src="{% static 'js/reservations/room_availability.js' %}"></script>
+{% endblock %}
+
+

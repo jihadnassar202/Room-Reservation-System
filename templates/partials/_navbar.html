@@ -19,11 +19,11 @@
         {% if user.is_authenticated %}
           <li class="nav-item">
             <a
-              class="nav-link{% if request.resolver_match and request.resolver_match.app_name == 'reservations' and request.resolver_match.url_name == 'checkout' %} active{% endif %}"
-              href="{% url 'reservations:checkout' %}"
-              {% if request.resolver_match and request.resolver_match.app_name == 'reservations' and request.resolver_match.url_name == 'checkout' %}aria-current="page"{% endif %}
+              class="nav-link{% if request.resolver_match and request.resolver_match.app_name == 'reservations' and request.resolver_match.url_name == 'room_availability' %} active{% endif %}"
+              href="{% url 'reservations:room_availability' %}"
+              {% if request.resolver_match and request.resolver_match.app_name == 'reservations' and request.resolver_match.url_name == 'room_availability' %}aria-current="page"{% endif %}
             >
-              Checkout
+              Room Availability
             </a>
           </li>
           <li class="nav-item">

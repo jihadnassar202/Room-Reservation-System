@@ -6,7 +6,7 @@ from .api import (
     create_reservation_api,
     update_reservation_api,
 )
-from .views import checkout_view, my_reservations_view, reservation_create_view, reservation_edit_view
+from .views import my_reservations_view, reservation_create_view, reservation_edit_view, room_availability_view
 
 
 app_name = "reservations"
@@ -24,9 +24,9 @@ urlpatterns = [
         cancel_reservation_api,
         name="cancel_reservation_api",
     ),
-    path("checkout/", checkout_view, name="checkout"),
-    path("my-reservations/", my_reservations_view, name="my_reservations"),
+    path("availability/", room_availability_view, name="room_availability"),
     path("reservations/new/", reservation_create_view, name="reservation_create"),
+    path("my-reservations/", my_reservations_view, name="my_reservations"),
     path("reservations/<int:reservation_id>/edit/", reservation_edit_view, name="reservation_edit"),
 ]
 

@@ -9,9 +9,11 @@
       <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
         <div>
           <h1 class="h4 mb-1">New Reservation</h1>
-          <div class="text-body-secondary">Choose a room type, date, and an available time slot.</div>
+          <div class="text-body-secondary">
+            Create a reservation using a standard Django form (works without JavaScript).
+          </div>
         </div>
-        <a class="btn btn-outline-primary" href="{% url 'reservations:checkout' %}">Back to Checkout</a>
+        <a class="btn btn-outline-primary" href="{% url 'reservations:room_availability' %}">Back to Availability</a>
       </div>
 
       <div class="card shadow-sm">
@@ -21,7 +23,7 @@
               No room types are configured yet. Please add Room Types in the admin first.
             </div>
           {% else %}
-            <form method="post" id="reservationForm" novalidate>
+            <form method="post" id="reservationCreateForm" novalidate>
               {% csrf_token %}
 
               {% if form.non_field_errors %}
@@ -67,27 +69,20 @@
                   {% else %}
                     {{ form.slot|add_class:"form-select" }}
                   {% endif %}
-                  <div class="form-text text-body-secondary" id="slotHelp">
-                    Only available slots are shown in the dropdown. Reserved slots are marked below.
+                  <div class="form-text text-body-secondary" id="createSlotHelp">
+                    This dropdown shows only available slots for the selected room type + date.
+                    <span class="d-block">
+                      Without JavaScript, click “Update available slots” after changing room/date to refresh the dropdown.
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div class="mt-4">
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                  <div class="fw-semibold">Slot status</div>
-                  <div class="small text-body-secondary" id="formStatus" role="status" aria-live="polite">Idle</div>
-                </div>
-                <div class="d-flex flex-wrap gap-2" id="slotBadges">
-                  <span class="badge text-bg-secondary">Loading…</span>
-                </div>
-              </div>
-
-              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-4">
-                <button type="submit" class="btn btn-primary" id="submitReservationBtn">Reserve</button>
-                <div class="small text-body-secondary">
-                  You will be asked to confirm before reserving.
-                </div>
+              <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mt-4">
+                <button type="submit" class="btn btn-outline-primary" name="action" value="update">
+                  Update available slots
+                </button>
+                <button type="submit" class="btn btn-primary" name="action" value="reserve">Reserve</button>
               </div>
             </form>
           {% endif %}
@@ -95,11 +90,6 @@
       </div>
     </div>
   </div>
-{% endblock %}
-
-{% block extra_js %}
-  {% load static %}
-  <script src="{% static 'js/reservations/reservation_form.js' %}"></script>
 {% endblock %}
 
 
