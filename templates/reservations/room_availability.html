@@ -53,18 +53,12 @@
             </div>
             <noscript>
               <div class="col-12">
-                <button type="submit" class="btn btn-outline-primary">Update</button>
+                <div class="alert alert-warning mb-0" role="alert">
+                  JavaScript is required to view live availability and reserve a slot. Please enable JavaScript and reload.
+                </div>
               </div>
             </noscript>
           </form>
-
-          <noscript>
-            <div class="alert alert-warning mt-3 mb-0" role="alert">
-              JavaScript is disabled. To create a reservation, use the
-              <a class="alert-link" href="{% url 'reservations:reservation_create' %}">New Reservation</a>
-              form.
-            </div>
-          </noscript>
 
           <div id="availabilityHelp" class="form-text text-body-secondary mt-2">
             Availability updates automatically when you change the date (no page reload).
