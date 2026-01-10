@@ -2,6 +2,10 @@
 
 Django + PostgreSQL room reservation system (Task 4).
 
+## Demo checklist
+
+See `DEMO_VIDEO.md`.
+
 ## Local setup (high level)
 
 - Create and activate a virtualenv
