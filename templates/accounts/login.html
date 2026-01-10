@@ -52,11 +52,30 @@
             <div class="my-3 text-center text-body-secondary small">or</div>
 
             {% if GOOGLE_OAUTH_ENABLED %}
-              <a class="btn btn-outline-secondary w-100" href="{% provider_login_url 'google' %}">
+              <a
+                class="btn btn-light border w-100 d-flex align-items-center justify-content-center gap-2 py-2 text-dark"
+                href="/accounts/google/login/"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  alt=""
+                  width="18"
+                  height="18"
+                />
                 Continue with Google
               </a>
             {% else %}
-              <button type="button" class="btn btn-outline-secondary w-100" disabled>
+              <button
+                type="button"
+                class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 py-2"
+                disabled
+              >
+                <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  alt=""
+                  width="18"
+                  height="18"
+                />
                 Continue with Google
               </button>
               <div class="form-text text-body-secondary text-center mt-1">

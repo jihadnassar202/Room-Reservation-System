@@ -11,7 +11,24 @@
           <p class="text-body-secondary mb-4">
             Please use the main login page.
           </p>
-          <a class="btn btn-primary" href="{% url 'accounts:login' %}">Go to login</a>
+
+          {% if GOOGLE_OAUTH_ENABLED %}
+            <a
+              class="btn btn-light border w-100 d-flex align-items-center justify-content-center gap-2 py-2 text-dark"
+              href="/accounts/google/login/"
+            >
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt=""
+                width="18"
+                height="18"
+              />
+              Continue with Google
+            </a>
+            <div class="my-3 text-center text-body-secondary small">or</div>
+          {% endif %}
+
+          <a class="btn btn-primary w-100" href="{% url 'accounts:login' %}">Go to login</a>
         </div>
       </div>
     </div>

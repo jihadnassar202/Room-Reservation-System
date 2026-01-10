@@ -22,11 +22,12 @@
     <div class="col-12">
       <div class="card shadow-sm">
         <div class="card-body p-4">
-          <div class="row g-3">
+          <form method="get" class="row g-3" id="checkoutFiltersForm" novalidate>
             <div class="col-12 col-md-4">
               <label class="form-label" for="checkoutDate">Date</label>
               <input
                 id="checkoutDate"
+                name="date"
                 type="date"
                 class="form-control"
                 value="{{ initial_date }}"
@@ -44,10 +45,104 @@
                 aria-describedby="checkoutHelp"
               />
             </div>
-          </div>
+            <input type="hidden" name="room_type_id" value="{{ selected_room_type_id|default:'' }}" />
+            <noscript>
+              <div class="col-12">
+                <button type="submit" class="btn btn-outline-primary">Update</button>
+              </div>
+            </noscript>
+          </form>
 
           <div id="checkoutHelp" class="form-text text-body-secondary mt-2">
             Availability updates automatically when you change the date.
+          </div>
+
+          <div class="mt-4" id="roomCardsWrap" aria-label="Room types">
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+              <div class="fw-semibold">Room types</div>
+              <div class="small text-body-secondary" id="roomCardsStatus" role="status" aria-live="polite">Idle</div>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3" id="roomCardsGrid">
+              {% for rt in room_types %}
+                <div class="col">
+                  <a
+                    class="card h-100 room-card text-decoration-none text-reset{% if selected_room_type_id == rt.id %} is-active{% endif %}"
+                    href="?date={{ initial_date }}&room_type_id={{ rt.id }}"
+                    data-room-type-id="{{ rt.id }}"
+                    data-room-type-name="{{ rt.name }}"
+                    aria-label="View availability for {{ rt.name }}"
+                  >
+                    <div class="card-body">
+                      <div class="d-flex align-items-start justify-content-between gap-2">
+                        <div>
+                          <div class="h6 mb-1">{{ rt.name }}</div>
+                          {% if rt.description %}
+                            <div class="small text-body-secondary mb-2">{{ rt.description }}</div>
+                          {% endif %}
+                        </div>
+                        <span
+                          class="badge text-bg-secondary"
+                          data-role="room-card-summary"
+                          data-room-type-id="{{ rt.id }}"
+                          title="Availability summary for selected date"
+                        >
+                          —
+                        </span>
+                      </div>
+
+                      <div class="small text-body-secondary">
+                        Capacity:
+                        <span class="text-body-emphasis">
+                          {% if rt.capacity_min and rt.capacity_max %}
+                            {{ rt.capacity_min }}–{{ rt.capacity_max }}
+                          {% elif rt.capacity_min %}
+                            ≥ {{ rt.capacity_min }}
+                          {% elif rt.capacity_max %}
+                            ≤ {{ rt.capacity_max }}
+                          {% else %}
+                            —
+                          {% endif %}
+                        </span>
+                      </div>
+
+                      {% if rt.default_equipment %}
+                        <div class="mt-2 d-flex flex-wrap gap-2">
+                          {% for eq in rt.default_equipment %}
+                            {% with eq_l=eq|lower %}
+                              <span class="badge text-bg-secondary" title="{{ eq }}">
+                                {% if eq_l == "projector" %}
+                                  📽️
+                                {% elif eq_l == "computers" or eq_l == "pcs" %}
+                                  🖥️
+                                {% elif eq_l == "ac" %}
+                                  ❄️
+                                {% elif eq_l == "whiteboard" %}
+                                  📝
+                                {% elif "sound" in eq_l %}
+                                  🔊
+                                {% elif "video" in eq_l %}
+                                  🎥
+                                {% else %}
+                                  🔧
+                                {% endif %}
+                                {{ eq }}
+                              </span>
+                            {% endwith %}
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    </div>
+                  </a>
+                </div>
+              {% empty %}
+                <div class="col">
+                  <div class="text-body-secondary">
+                    No room types are configured yet. Please add Room Types in the admin first.
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
           </div>
 
           <div class="mt-4" id="availabilityMatrixWrap">
@@ -71,15 +166,61 @@
                   Availability table. Rows are room types and columns are time slots.
                 </caption>
                 <thead id="availabilityHead">
-                  <tr>
-                    <th class="text-body-secondary small" scope="col">Room</th>
-                    <th class="text-body-secondary small text-center" scope="col">Time slots</th>
-                  </tr>
+                  {% if initial_availability %}
+                    <tr>
+                      <th class="text-body-secondary small" scope="col">Room</th>
+                      {% for s in initial_availability.time_slots %}
+                        <th class="text-body-secondary small text-center" scope="col">{{ s.label }}</th>
+                      {% endfor %}
+                    </tr>
+                  {% else %}
+                    <tr>
+                      <th class="text-body-secondary small" scope="col">Room</th>
+                      <th class="text-body-secondary small text-center" scope="col">Time slots</th>
+                    </tr>
+                  {% endif %}
                 </thead>
                 <tbody id="availabilityBody">
-                  <tr>
-                    <td colspan="99" class="text-body-secondary">Loading…</td>
-                  </tr>
+                  {% if initial_availability %}
+                    {% for rt in initial_availability.room_types %}
+                      <tr class="room-row-highlight" data-room-type-id="{{ rt.id }}">
+                        <th scope="row" class="fw-semibold">{{ rt.name }}</th>
+                        {% for s in initial_availability.time_slots %}
+                          {% if s.value in rt.reserved_slots %}
+                            <td class="text-center">
+                              <button
+                                type="button"
+                                class="btn btn-sm btn-danger w-100"
+                                disabled
+                                aria-disabled="true"
+                                title="Reserved"
+                              >
+                                Reserved
+                              </button>
+                            </td>
+                          {% else %}
+                            <td class="text-center">
+                              <button
+                                type="button"
+                                class="btn btn-sm btn-outline-success w-100"
+                                disabled
+                                aria-disabled="true"
+                                title="Available"
+                              >
+                                Available
+                              </button>
+                            </td>
+                          {% endif %}
+                        {% endfor %}
+                      </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td colspan="99" class="text-body-secondary">
+                        Select a room type card above to load availability for the selected date.
+                      </td>
+                    </tr>
+                  {% endif %}
                 </tbody>
               </table>
             </div>
@@ -99,6 +240,45 @@
               Tip: all user feedback in this project uses toasts/modals — no alerts.
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Slot picker modal: opened when a Room Card is clicked (progressive enhancement keeps links usable). #}
+  <div
+    class="modal fade"
+    id="roomSlotModal"
+    tabindex="-1"
+    aria-labelledby="roomSlotModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="roomSlotModalLabel">Reserve a slot</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+            <div class="small text-body-secondary" id="roomSlotModalSubtitle">—</div>
+            <div class="small text-body-secondary" id="roomSlotModalStatus" role="status" aria-live="polite">Idle</div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 align-items-center small mb-3">
+            <span class="badge text-bg-success">Available</span>
+            <span class="badge text-bg-danger">Reserved</span>
+            <span class="badge text-bg-primary">Selected</span>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2" id="roomSlotButtons" aria-label="Time slots"></div>
+          <div class="mt-3 small text-body-secondary" id="roomSlotSelectionSummary" aria-live="polite">No slot selected</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="roomSlotReserveBtn" disabled>
+            Reserve selected slot
+          </button>
         </div>
       </div>
     </div>

@@ -1,7 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
+from django.conf import settings
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
 
@@ -42,6 +45,20 @@ def register_view(request):
         messages.error(request, "Please fix the highlighted fields and try again.")
 
     return render(request, "accounts/register.html", {"form": form})
+
+
+def google_login_redirect(request):
+    """
+    Keep the UI link stable at /accounts/google/login/ while allauth lives under /social/.
+    """
+    if not getattr(settings, "GOOGLE_OAUTH_ENABLED", False):
+        messages.info(request, "Google Sign-In is not configured yet.")
+        return redirect("accounts:login")
+
+    target = reverse("google_login")  # allauth provider url (mounted under /social/)
+    if request.GET:
+        target = f"{target}?{request.GET.urlencode()}"
+    return HttpResponseRedirect(target)
 
 
 

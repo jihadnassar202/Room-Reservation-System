@@ -143,6 +143,8 @@ AUTHENTICATION_BACKENDS = [
 # allauth (local accounts stay handled by our own views; allauth is used for social login)
 ACCOUNT_EMAIL_VERIFICATION = "none"
 SOCIALACCOUNT_AUTO_SIGNUP = True
+# Start social login immediately on GET (skip the intermediate "Sign In Via Google" confirmation page).
+SOCIALACCOUNT_LOGIN_ON_GET = True
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "").strip()

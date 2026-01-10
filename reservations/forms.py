@@ -21,8 +21,9 @@ class ReservationCreateForm(forms.Form):
         empty_value=None,
     )
 
-    def __init__(self, *args, room_types_qs=None, **kwargs):
+    def __init__(self, *args, room_types_qs=None, slot_help_id: str = "slotHelp", **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["slot"].widget.attrs["aria-describedby"] = slot_help_id
         self.fields["room_type"].queryset = room_types_qs if room_types_qs is not None else RoomType.objects.filter(is_active=True)
 
         room_type_id = self.data.get("room_type") if self.is_bound else None

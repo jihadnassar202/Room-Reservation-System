@@ -5,6 +5,7 @@ from datetime import date as date_type
 
 from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
+from django.db.models import Count
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
@@ -45,6 +46,7 @@ def availability_api(request):
 
     room_type_id = request.GET.get("room_type_id", "").strip()
     exclude_reservation_id = request.GET.get("exclude_reservation_id", "").strip()
+    summary = (request.GET.get("summary") or "").strip().lower() in {"1", "true", "yes"}
     exclude_id = None
     if exclude_reservation_id:
         if not exclude_reservation_id.isdigit():
@@ -63,6 +65,28 @@ def availability_api(request):
     reserved_qs = Reservation.objects.filter(date=target_date, room_type_id__in=room_type_ids)
     if exclude_id is not None:
         reserved_qs = reserved_qs.exclude(id=exclude_id)
+
+    if summary:
+        # Summary mode is intentionally lightweight for the Room Cards UI.
+        # We reuse the same DB source-of-truth but only return counts (not per-slot arrays),
+        # so we can update card badges without fetching detailed availability for all rooms.
+        counts = reserved_qs.values("room_type_id").annotate(reserved_count=Count("slot"))
+        count_map: dict[int, int] = {row["room_type_id"]: int(row["reserved_count"]) for row in counts}
+
+        return JsonResponse(
+            {
+                "date": target_date.isoformat(),
+                "total_slots": len(TimeSlot.choices),
+                "room_types": [
+                    {
+                        "id": rt.id,
+                        "name": rt.name,
+                        "reserved_count": count_map.get(rt.id, 0),
+                    }
+                    for rt in room_types
+                ],
+            }
+        )
 
     reserved_rows = reserved_qs.values("room_type_id", "slot")
 
