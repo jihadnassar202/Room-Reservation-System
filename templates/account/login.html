@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Login · Room Reservation{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h4 mb-2">Login</h1>
+          <p class="text-body-secondary mb-4">
+            Please use the main login page.
+          </p>
+          <a class="btn btn-primary" href="{% url 'accounts:login' %}">Go to login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+

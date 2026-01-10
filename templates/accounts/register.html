@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load form_tags %}
+{% load socialaccount %}
 
 {% block title %}Create account · Room Reservation{% endblock %}
 
@@ -78,12 +79,18 @@
 
             <div class="my-3 text-center text-body-secondary small">or</div>
 
-            <button type="button" class="btn btn-outline-secondary w-100" disabled>
-              Continue with Google
-            </button>
-            <div class="form-text text-body-secondary text-center mt-1">
-              (Google Sign-In will be enabled later.)
-            </div>
+            {% if GOOGLE_OAUTH_ENABLED %}
+              <a class="btn btn-outline-secondary w-100" href="{% provider_login_url 'google' %}">
+                Continue with Google
+              </a>
+            {% else %}
+              <button type="button" class="btn btn-outline-secondary w-100" disabled>
+                Continue with Google
+              </button>
+              <div class="form-text text-body-secondary text-center mt-1">
+                (Google Sign-In is not configured yet.)
+              </div>
+            {% endif %}
 
             <div class="mt-4 text-center small">
               Already have an account?

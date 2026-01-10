@@ -9,6 +9,7 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from .models import Reservation, RoomType, TimeSlot
+from .emails import ReservationEmailPayload, send_reservation_email
 
 
 class ReservationError(Exception):
@@ -78,12 +79,22 @@ def create_reservation(*, user, data: ReservationInput) -> Reservation:
             ).exists():
                 raise SlotUnavailableError("That time slot is already reserved.")
 
-            return Reservation.objects.create(
+            reservation = Reservation.objects.create(
                 user=user,
                 room_type=room_type,
                 date=data.date,
                 slot=data.slot,
             )
+            _schedule_reservation_email(
+                ReservationEmailPayload(
+                    to_email=getattr(user, "email", "") or "",
+                    event="created",
+                    room_name=room_type.name,
+                    date=reservation.date,
+                    slot_value=reservation.slot,
+                )
+            )
+            return reservation
     except IntegrityError as exc:
         raise SlotUnavailableError("That time slot was just reserved. Please pick another.") from exc
 
@@ -134,6 +145,16 @@ def update_reservation(
             reservation.date = new_data.date
             reservation.slot = new_data.slot
             reservation.save(update_fields=["room_type", "date", "slot", "updated_at"])
+
+            _schedule_reservation_email(
+                ReservationEmailPayload(
+                    to_email=getattr(user, "email", "") or "",
+                    event="updated",
+                    room_name=new_room_type.name,
+                    date=reservation.date,
+                    slot_value=reservation.slot,
+                )
+            )
             return reservation
     except IntegrityError as exc:
         raise SlotUnavailableError("That time slot was just reserved. Please pick another.") from exc
@@ -155,6 +176,28 @@ def cancel_reservation(*, user, reservation_id: int) -> None:
         if not reservation.is_future():
             raise PastReservationError("Past reservations cannot be cancelled.")
 
+        payload = ReservationEmailPayload(
+            to_email=getattr(user, "email", "") or "",
+            event="cancelled",
+            room_name=reservation.room_type.name,
+            date=reservation.date,
+            slot_value=reservation.slot,
+        )
         reservation.delete()
+        _schedule_reservation_email(payload)
+
+
+def _schedule_reservation_email(payload: ReservationEmailPayload) -> None:
+    """
+    Schedule sending an email after the transaction commits.
+    Never raises.
+    """
+    if not payload.to_email:
+        return
+
+    def _send():
+        send_reservation_email(payload)
+
+    transaction.on_commit(_send)
 
 

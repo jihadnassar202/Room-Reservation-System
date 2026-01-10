@@ -1,0 +1,9 @@
+Your reservation was cancelled.
+
+Room: {{ room_name }}
+Date: {{ date }}
+Time: {{ slot_label }}
+
+Room Reservation System
+
+

@@ -1,0 +1,10 @@
+Your reservation is confirmed.
+
+Room: {{ room_name }}
+Date: {{ date }}
+Time: {{ slot_label }}
+
+Thanks,
+Room Reservation System
+
+
