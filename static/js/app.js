@@ -1,7 +1,4 @@
 (() => {
-  // Progressive enhancement helper:
-  // Adds a class we can use to hide JS-replaced UI (e.g., Checkout availability grid)
-  // while keeping the server-rendered fallback visible when JS is disabled.
   document.documentElement.classList.add("js-enabled");
 
   const TAG_TO_VARIANT = {

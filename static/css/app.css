@@ -1,7 +1,3 @@
-/*
-  Brand theme (logo-based): deep teal + gold.
-  Implemented as Bootstrap 5.3 variable overrides + small component tweaks.
-*/
 
 :root[data-bs-theme="dark"] {
   --brand-bg: #0e2a2a;
