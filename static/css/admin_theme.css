@@ -1,0 +1,132 @@
+:root {
+  --admin-bg: #0e2a2a;
+  --admin-surface: #123534;
+  --admin-surface-2: #16403e;
+  --admin-accent: #c9b26b;
+  --admin-accent-strong: #b89a45;
+  --admin-text: #e8e3d4;
+  --admin-muted: #b9b09a;
+  --admin-border: rgba(201, 178, 107, 0.25);
+}
+
+body.login,
+#container {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+#header {
+  background: linear-gradient(120deg, #0f2f2d, #123534);
+  border-bottom: 1px solid var(--admin-border);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+}
+
+#header h1,
+#header h1 a:link,
+#header h1 a:visited {
+  color: var(--admin-accent);
+  font-weight: 700;
+}
+
+#user-tools {
+  color: var(--admin-muted);
+}
+
+#content,
+.module,
+.inline-group,
+#nav-sidebar,
+#content-related {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+#nav-sidebar {
+  border-right: 1px solid var(--admin-border);
+}
+
+.module h2,
+.inline-group h2,
+.module caption {
+  background: var(--admin-surface-2);
+  color: var(--admin-accent);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+a:link,
+a:visited {
+  color: var(--admin-accent);
+}
+
+a:hover,
+a:focus {
+  color: var(--admin-accent-strong);
+}
+
+input,
+select,
+textarea {
+  background: var(--admin-surface-2);
+  color: var(--admin-text);
+  border-color: var(--admin-border);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 2px rgba(201, 178, 107, 0.2);
+  border-color: var(--admin-accent);
+}
+
+button,
+input[type="submit"],
+input[type="button"],
+.button {
+  background: var(--admin-surface-2);
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+}
+
+input[type="submit"].default,
+.button.default {
+  background: var(--admin-accent);
+  border-color: var(--admin-accent);
+  color: #0b1f1f;
+}
+
+.breadcrumbs {
+  background: var(--admin-surface-2);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.object-tools a:link,
+.object-tools a:visited {
+  background: var(--admin-accent);
+  color: #0b1f1f;
+  border-color: var(--admin-accent);
+}
+
+.object-tools a:hover,
+.object-tools a:focus {
+  background: var(--admin-accent-strong);
+  border-color: var(--admin-accent-strong);
+}
+
+table#result_list {
+  border-color: var(--admin-border);
+}
+
+table#result_list thead th {
+  background: var(--admin-surface-2);
+  color: var(--admin-text);
+}
+
+table#result_list tbody tr:nth-child(even) {
+  background: var(--admin-surface);
+}
+
+table#result_list tbody tr:hover {
+  background: rgba(201, 178, 107, 0.08);
+}
+
+

@@ -39,6 +39,11 @@
       </ul>
 
       <ul class="navbar-nav ms-auto align-items-lg-center">
+        {% if user.is_staff or user.is_superuser %}
+          <li class="nav-item me-lg-2">
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'admin:index' %}">Admin</a>
+          </li>
+        {% endif %}
         {% if user.is_authenticated %}
           <li class="nav-item me-lg-2">
             <span class="navbar-text small">Signed in as {{ user.username }}</span>

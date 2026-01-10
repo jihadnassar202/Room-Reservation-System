@@ -1,6 +1,7 @@
 from datetime import datetime, time, timedelta
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -58,7 +59,7 @@ class Reservation(models.Model):
             models.Index(fields=["user", "date"], name="idx_res_user_date"),
             models.Index(fields=["room_type", "date"], name="idx_res_room_date"),
         ]
-        ordering = ["-date", "-slot", "-created_at"]
+        ordering = ["-date", "slot", "-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover
         return f"{self.room_type} · {self.date} · {self.get_slot_display()} · {self.user}"
@@ -82,6 +83,36 @@ class Reservation(models.Model):
         True if the reservation has not ended yet.
         """
         return self.end_datetime() >= timezone.now()
+
+    def is_past(self) -> bool:
+        """
+        True if the reservation already ended.
+        """
+        return not self.is_future()
+
+    @property
+    def status(self) -> str:
+        """
+        Admin-friendly status string.
+        """
+        return "ONGOING" if self.is_future() else "PAST"
+
+    def clean(self) -> None:
+        """
+        Prevent double booking at the model validation layer so admin and any
+        other save path get the same protection before the DB constraint fires.
+        """
+        super().clean()
+        if self.room_type and self.date and self.slot is not None:
+            conflict = (
+                Reservation.objects.filter(room_type=self.room_type, date=self.date, slot=self.slot)
+                .exclude(pk=self.pk)
+                .exists()
+            )
+            if conflict:
+                raise ValidationError(
+                    {"slot": "This room type is already reserved for that date and time slot."}
+                )
 
 
 
