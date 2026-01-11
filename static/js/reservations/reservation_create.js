@@ -136,9 +136,9 @@
     if (helpText) {
       const originalText = helpText.textContent;
       helpText.innerHTML = `
-        This dropdown shows only available slots for the selected room type + date.
+        Only available time slots are displayed for your selected room and date.
         <span class="d-block">
-          Slots update automatically when you change the room type or date.
+          Options refresh instantly as you explore different rooms and dates.
         </span>
       `;
     }
