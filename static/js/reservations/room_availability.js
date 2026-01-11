@@ -27,7 +27,6 @@
     const filtersForm = document.getElementById("availabilityFiltersForm");
     const dateInput = document.getElementById("availabilityDate");
     const filterInput = document.getElementById("roomFilter");
-    const redirectAfterReserveEl = document.getElementById("redirectAfterReserve");
 
     const roomCardsWrap = document.getElementById("roomCardsWrap");
     const roomCardsStatusEl = document.getElementById("roomCardsStatus");
@@ -40,23 +39,6 @@
       evt.preventDefault();
     });
 
-    const STORAGE_KEY_REDIRECT = "rrs_redirect_after_reserve";
-    if (redirectAfterReserveEl) {
-      try {
-        redirectAfterReserveEl.checked = window.localStorage.getItem(STORAGE_KEY_REDIRECT) === "1";
-      } catch (_) {
-        // ignore
-      }
-      redirectAfterReserveEl.addEventListener("change", () => {
-        try {
-          window.localStorage.setItem(STORAGE_KEY_REDIRECT, redirectAfterReserveEl.checked ? "1" : "0");
-        } catch (_) {
-          // ignore
-        }
-      });
-    }
-
-    const myReservationsUrl = roomCardsWrap?.dataset?.myReservationsUrl || "/my-reservations/";
 
     const roomCardEls = Array.from(roomCardsGrid.querySelectorAll(".room-card[data-room-type-id]"));
     if (!roomCardEls.length) return;
@@ -279,19 +261,21 @@
 
     const applyFilter = () => {
       if (!filterInput) return;
-      const q = (filterInput.value || "").trim().toLowerCase();
-      if (!q) {
+      const selectedRoomTypeId = filterInput.value ? Number(filterInput.value) : null;
+
+      if (!selectedRoomTypeId) {
+        // Show all room types
         colById.forEach((col) => col.classList.remove("d-none"));
         return;
       }
 
+      // Show only the selected room type
       colById.forEach((col, roomTypeId) => {
-        const name = (roomNameById.get(roomTypeId) || "").toLowerCase();
-        col.classList.toggle("d-none", !name.includes(q));
+        col.classList.toggle("d-none", Number(roomTypeId) !== selectedRoomTypeId);
       });
     };
 
-    filterInput?.addEventListener("input", () => {
+    filterInput?.addEventListener("change", () => {
       if (isBusy()) return;
       applyFilter();
     });
@@ -412,14 +396,6 @@
         availabilityCacheByDate.delete(date);
         selection = null;
         updatePerCardSelectionUI();
-
-        const wantsRedirect = Boolean(redirectAfterReserveEl?.checked);
-        if (wantsRedirect) {
-          window.setTimeout(() => {
-            window.location.href = myReservationsUrl;
-          }, 700);
-          return;
-        }
 
         await loadAvailability({ force: true });
       } catch (e) {

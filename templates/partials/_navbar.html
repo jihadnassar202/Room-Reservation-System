@@ -28,6 +28,15 @@
           </li>
           <li class="nav-item">
             <a
+              class="nav-link{% if request.resolver_match and request.resolver_match.app_name == 'reservations' and request.resolver_match.url_name == 'reservation_create' %} active{% endif %}"
+              href="{% url 'reservations:reservation_create' %}"
+              {% if request.resolver_match and request.resolver_match.app_name == 'reservations' and request.resolver_match.url_name == 'reservation_create' %}aria-current="page"{% endif %}
+            >
+              New Reservation
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
               class="nav-link{% if request.resolver_match and request.resolver_match.app_name == 'reservations' and request.resolver_match.url_name == 'my_reservations' or request.resolver_match and request.resolver_match.app_name == 'reservations' and request.resolver_match.url_name == 'reservation_edit' %} active{% endif %}"
               href="{% url 'reservations:my_reservations' %}"
               {% if request.resolver_match and request.resolver_match.app_name == 'reservations' and request.resolver_match.url_name == 'my_reservations' or request.resolver_match and request.resolver_match.app_name == 'reservations' and request.resolver_match.url_name == 'reservation_edit' %}aria-current="page"{% endif %}

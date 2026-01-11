@@ -119,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = os.environ.get("DJANGO_TIME_ZONE", "Africa/Cairo")
+TIME_ZONE = os.environ.get("DJANGO_TIME_ZONE", "Asia/Amman")
 USE_I18N = True
 USE_TZ = True
 
