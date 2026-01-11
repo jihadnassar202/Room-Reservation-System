@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Dark teal/emerald background (#0e2a2a) -->
+  <rect width="200" height="200" fill="#0e2a2a"/>
+  
+  <!-- Stylized RR monogram in gold/khaki (#c9b26b) -->
+  <g fill="#c9b26b" stroke="#c9b26b">
+    <!-- First R -->
+    <path d="M 50 45 
+             C 50 50, 50 55, 50 70
+             L 50 155
+             M 50 70
+             C 50 75, 52 80, 58 82
+             C 68 85, 72 90, 72 100
+             C 72 110, 68 115, 58 118
+             C 52 120, 50 125, 50 130
+             M 58 82
+             L 58 118" 
+          stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- Second R (intertwined) -->
+    <path d="M 105 45
+             C 105 50, 105 55, 105 70
+             L 105 155
+             M 105 70
+             C 105 75, 107 80, 113 82
+             C 123 85, 127 90, 127 100
+             C 127 110, 123 115, 113 118
+             C 107 120, 105 125, 105 130
+             M 113 82
+             L 113 118"
+          stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- Connecting decorative element -->
+    <path d="M 72 100 Q 88 95 105 100" 
+          stroke-width="5" stroke-linecap="round" fill="none" opacity="0.5"/>
+  </g>
+</svg>
